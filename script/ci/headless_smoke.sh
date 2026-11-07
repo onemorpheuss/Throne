@@ -217,6 +217,28 @@ leg_a() {
     expect_eq "imported profiles" "$(jget imported <<<"$out")" 1
     id=$(jget profile_ids.0 <<<"$out")
 
+    say "Import a TrustTunnel deeplink JSON subscription"
+    out=$(printf '%s' '{"version":1,"format":"trusttunnel-deeplink","profiles":[{"nodeId":1,"name":"TT one","profile":"tt://user:pass@one.example.com:443"},{"nodeId":2,"name":"TT two","profile":"tt://user:pass@two.example.com:443"},{"nodeId":3,"name":"Outer name","profile":"tt://?AAECAQtleGFtcGxlLmNvbQIPZXhhbXBsZS5jb206NDQzBQR1c2VyBgRwYXNzDA1FbWJlZGRlZCBuYW1l"}]}' | ctl --json import -)
+    echo "$out"
+    expect_eq "imported TrustTunnel profiles" "$(jget imported <<<"$out")" 3
+    out=$(ctl --json profiles)
+    expect_eq "TrustTunnel profile types" "$(python3 -I -c 'import json,sys; print(sum(p["type"] == "trusttunnel" for p in json.load(sys.stdin)["profiles"]))' <<<"$out")" 3
+    expect_eq "TrustTunnel profile names" "$(python3 -I -c 'import json,sys; print(",".join(sorted(p["name"] for p in json.load(sys.stdin)["profiles"] if p["type"] == "trusttunnel")))' <<<"$out")" 'Embedded name,TT one,TT two'
+
+    say "Reject excessively nested subscription wrappers"
+    nested=$(python3 -I -c 'import base64,json; value={"version":1,"format":"trusttunnel-deeplink","profiles":[{"name":"nested","profile":"tt://user:pass@nested.example.com:443"}]}
+for _ in range(32):
+ value={"version":1,"format":"trusttunnel-deeplink","profiles":[{"name":"nested","profile":base64.urlsafe_b64encode(json.dumps(value,separators=(",",":")).encode()).decode().rstrip("=")}]}
+print(json.dumps(value,separators=(",",":")))')
+    if out=$(printf '%s' "$nested" | ctl --timeout 10s --json import - 2>&1); then
+        echo "$out"
+        fail "32 nested subscription wrappers bypassed the parser depth limit"
+    fi
+    case "$out" in
+        *"error: nothing_imported:"*) ;;
+        *) echo "$out"; fail "Nested subscription rejection timed out, crashed, or returned an unexpected error" ;;
+    esac
+
     say "thronectl connect $id"
     ctl --timeout 90s connect "$id"
     out=$(ctl --json status)

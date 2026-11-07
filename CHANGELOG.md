@@ -1,3 +1,10 @@
+#### 1.4.1-onemorpheuss.2
+
+* Import TrustTunnel deeplink JSON subscriptions with named `profiles[].profile` entries
+* Preserve subscription-provided names when the deeplink has no name of its own
+* Add a headless regression test for TrustTunnel JSON subscription imports
+* Skip upstream-only publishing jobs on forks
+
 #### 1.4.1-onemorpheuss.1
 
 * Enable hourly subscription updates by default for new installations; existing update preferences are preserved

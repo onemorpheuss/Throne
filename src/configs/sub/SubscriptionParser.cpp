@@ -657,7 +657,7 @@ namespace Subscription {
 
             void documentBody(std::string_view text, bool needParse, int depth, const QString &overrideName);
             void reportJsonSyntax(std::string_view text, const QJsonParseError &error);
-            void json(const QJsonDocument &doc, std::string_view text);
+            void json(const QJsonDocument &doc, std::string_view text, int depth);
             void singBox(const QJsonDocument &doc, SingBoxSubType type);
             void xray(const QJsonDocument &doc, XraySubType type);
             void xrayOutbound(const QJsonObject &out, int index);
@@ -688,7 +688,7 @@ namespace Subscription {
                 QJsonParseError error{};
                 const auto doc = QJsonDocument::fromJson(QByteArray::fromRawData(text.data(), static_cast<qsizetype>(text.size())), &error);
                 if (error.error == QJsonParseError::NoError) {
-                    json(doc, text);
+                    json(doc, text, depth);
                     return;
                 }
                 // Whole documents only: the per-line split of a broken one would repeat the error for every brace line.
@@ -747,7 +747,7 @@ namespace Subscription {
             reportDocument({}, {parserError(message)});
         }
 
-        void Parser::json(const QJsonDocument &doc, std::string_view text) {
+        void Parser::json(const QJsonDocument &doc, std::string_view text, int depth) {
             // Xray first: its configs share the "outbounds" wrapper with sing-box.
             const auto xrayType = getXraySubType(doc);
             if (xrayType == XraySubType::outboundObject) {
@@ -773,6 +773,20 @@ namespace Subscription {
                 return;
             }
 
+            if (doc.isObject()) {
+                const auto profiles = doc.object()["profiles"].toArray();
+                bool linkCollection = doc.object()["profiles"].isArray() && !profiles.isEmpty();
+                for (const auto &item : profiles) {
+                    linkCollection = linkCollection && item.isObject() && item["profile"].isString();
+                }
+                if (linkCollection) {
+                    for (const auto &item : profiles) {
+                        const auto link = item["profile"].toString().toUtf8();
+                        document(scan::view(link), true, true, depth + 1, item["name"].toString());
+                    }
+                    return;
+                }
+            }
             if (text.find("version") != npos && text.find("servers") != npos) sip008(doc);
         }
 
@@ -1076,7 +1090,7 @@ namespace Subscription {
             Validation::Issues issues;
             const bool parsed = scoped([&] { return ent->outbound->ParseFromLink(str); }, issues);
 
-            if (parsed && std::string_view(profileType) == "wireguard") setNameIfEmpty(*ent, {overrideName});
+            if (parsed) setNameIfEmpty(*ent, {overrideName});
 
             accept(ent, parsed, std::move(issues), [&] { return linkSource(str, ent->outbound.get()); });
         }
