@@ -239,6 +239,12 @@ print(json.dumps(value,separators=(",",":")))')
         *) echo "$out"; fail "Nested subscription rejection timed out, crashed, or returned an unexpected error" ;;
     esac
 
+    say "Import mixed base64 and TrustTunnel JSON documents"
+    mixed=$(python3 -I -c 'import base64,json; primary=base64.b64encode(b"socks5://127.0.0.1:1080#mixed-socks").decode(); companion=json.dumps({"version":1,"format":"trusttunnel-deeplink","profiles":[{"name":"Mixed TT","profile":"tt://user:pass@mixed.example.com:443"}]},separators=(",",":")); print(primary+"\n"+companion)')
+    out=$(printf '%s' "$mixed" | ctl --json import -)
+    echo "$out"
+    expect_eq "mixed-document imported profiles" "$(jget imported <<<"$out")" 2
+
     say "thronectl connect $id"
     ctl --timeout 90s connect "$id"
     out=$(ctl --json status)

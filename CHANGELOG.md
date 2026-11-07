@@ -1,3 +1,9 @@
+#### 1.4.1-onemorpheuss.3
+
+* Automatically add TrustTunnel servers from the userv.one companion feed when using the ordinary subscription URL
+* Keep existing profiles unchanged if the TrustTunnel companion feed is unavailable or empty
+* Test mixed base64 and TrustTunnel JSON subscription documents
+
 #### 1.4.1-onemorpheuss.2
 
 * Import TrustTunnel deeplink JSON subscriptions with named `profiles[].profile` entries

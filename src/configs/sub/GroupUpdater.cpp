@@ -21,6 +21,7 @@
 #include <QRegularExpression>
 #include <QThreadPool>
 #include <QUrl>
+#include <QUrlQuery>
 
 #include <algorithm>
 #include <atomic>
@@ -270,6 +271,16 @@ namespace Subscription {
 
         QString fetchFailure(const QString &error) {
             return QCoreApplication::translate("Validation", "Could not download the subscription: %1").arg(error);
+        }
+
+        QString trustTunnelCompanionUrl(const QString &url) {
+            QUrl parsed(url);
+            if (parsed.host().compare(QLatin1String("subscription.userv.one"), Qt::CaseInsensitive) != 0) return {};
+            QUrlQuery query(parsed);
+            if (query.hasQueryItem(QLatin1String("format"))) return {};
+            query.addQueryItem(QLatin1String("format"), QLatin1String("trusttunnel-deeplink"));
+            parsed.setQuery(query);
+            return parsed.toString(QUrl::FullyEncoded);
         }
 
         QString groupUpdaterWebPageReason(const QByteArray &body) {
@@ -989,6 +1000,29 @@ namespace Subscription {
         // "off" means the header carries nothing; the link may then sit in the body instead.
         if (importRoute && (routing.isEmpty() || routing.compare(QLatin1String("off"), Qt::CaseInsensitive) == 0)) {
             if (const auto shipped = ShippedRoutingLink(body); !shipped.isEmpty()) routing = shipped;
+        }
+        if (const auto companionUrl = trustTunnelCompanionUrl(url); !companionUrl.isEmpty()) {
+            ImportReport primaryProbe;
+            if (!yieldsProfile(body, primaryProbe)) {
+                UpdateOutcome outcome;
+                outcome.gid = gid;
+                applyRefresh(group, url, std::move(body), subInfo, surface, outcome);
+                return outcome;
+            }
+            QByteArray companionBody;
+            Configs::SubUserInfo companionInfo;
+            QString companionError;
+            ImportReport companionProbe;
+            const bool downloaded = fetch(companionUrl, group->name, ResolveIdentity(group.get()), companionBody, companionInfo, &companionError);
+            if (!downloaded || !yieldsProfile(companionBody, companionProbe)) {
+                if (companionError.isEmpty()) companionError = QCoreApplication::translate("Validation", "The TrustTunnel subscription returned no profiles.");
+                auto outcome = groupUpdaterFailure(gid, UpdateOutcome::Failure::Fetch, groupUpdaterFetchError(companionError));
+                outcome.report.addFatal(fetchFailure(companionError));
+                if (surface == Surface::Log) logImportReport(outcome.report);
+                else ShowImportReport(reportTitle(surface, group->name), outcome.report);
+                return outcome;
+            }
+            body.append('\n').append(companionBody);
         }
         UpdateOutcome outcome;
         outcome.gid = gid;
