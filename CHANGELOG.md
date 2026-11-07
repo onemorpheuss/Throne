@@ -1,23 +1,14 @@
-#### 1.4.1-onemorpheuss.3
+#### 1.4.2
 
-* Automatically add TrustTunnel servers from the userv.one companion feed when using the ordinary subscription URL
-* Keep existing profiles unchanged if the TrustTunnel companion feed is unavailable or empty
-* Test mixed base64 and TrustTunnel JSON subscription documents
-
-#### 1.4.1-onemorpheuss.2
-
-* Import TrustTunnel deeplink JSON subscriptions with named `profiles[].profile` entries
-* Preserve subscription-provided names when the deeplink has no name of its own
-* Add a headless regression test for TrustTunnel JSON subscription imports
-* Skip upstream-only publishing jobs on forks
-
-#### 1.4.1-onemorpheuss.1
-
+* Include all Throne 1.4.1 upstream fixes and improvements
+* Import TrustTunnel deeplink JSON subscriptions and preserve server names
+* Automatically merge the userv.one TrustTunnel companion feed into ordinary subscriptions and direct URL imports
+* Reuse existing profiles on repeated userv.one direct imports instead of creating duplicates
+* Keep existing profiles unchanged when either subscription source is empty or unavailable
 * Enable hourly subscription updates by default for new installations; existing update preferences are preserved
 * Add regression tests for VMess, VLESS, Hysteria2, TrustTunnel and AmneziaWG configs
-* Stop extra processes and Xray sidecars when profile startup fails
-* Preserve the running profile and its sidecars on duplicate Start requests
-* Include all Throne 1.4.1 upstream fixes and improvements
+* Stop extra processes and Xray sidecars when profile startup fails, and preserve running sidecars on duplicate Start requests
+* Skip upstream-only publishing jobs on forks
 
 #### 1.4.1
 

@@ -664,9 +664,10 @@ namespace Subscription {
             QByteArray body;
             Configs::SubUserInfo subInfo;
             QString error;
-            if (fetch(content, QUrl(content).host(), ResolveIdentity(nullptr), body, subInfo, &error)) {
+            if (fetch(content, QUrl(content).host(), ResolveIdentity(nullptr), body, subInfo, &error) &&
+                mergeTrustTunnelCompanion(content, QUrl(content).host(), ResolveIdentity(nullptr), body, &error)) {
                 const auto emptyReason = groupUpdaterWebPageReason(body);
-                importDocuments(-1, {std::move(body)}, emptyReason);
+                importDocuments(-1, {std::move(body)}, emptyReason, false, !trustTunnelCompanionUrl(content).isEmpty());
             } else {
                 ImportReport report;
                 report.addFatal(fetchFailure(error));
@@ -716,9 +717,10 @@ namespace Subscription {
             QByteArray body;
             Configs::SubUserInfo subInfo;
             QString error;
-            if (fetch(content, QUrl(content).host(), ResolveIdentity(nullptr), body, subInfo, &error)) {
+            if (fetch(content, QUrl(content).host(), ResolveIdentity(nullptr), body, subInfo, &error) &&
+                mergeTrustTunnelCompanion(content, QUrl(content).host(), ResolveIdentity(nullptr), body, &error)) {
                 const auto emptyReason = groupUpdaterWebPageReason(body);
-                *outcome = importDocuments(gid, {std::move(body)}, emptyReason, true);
+                *outcome = importDocuments(gid, {std::move(body)}, emptyReason, true, !trustTunnelCompanionUrl(content).isEmpty());
             } else {
                 *outcome = groupUpdaterFailure(gid, UpdateOutcome::Failure::Fetch, groupUpdaterFetchError(error));
                 outcome->report.addFatal(fetchFailure(error));
@@ -930,10 +932,44 @@ namespace Subscription {
         return true;
     }
 
-    UpdateOutcome GroupUpdater::importDocuments(int gid, QList<QByteArray> documents, const QString &emptyReason, bool quiet) {
+    bool GroupUpdater::mergeTrustTunnelCompanion(const QString &url, const QString &name, const RequestIdentity &identity,
+                                                  QByteArray &body, QString *error) {
+        const auto companionUrl = trustTunnelCompanionUrl(url);
+        if (companionUrl.isEmpty()) return true;
+
+        // Preserve the caller's existing empty-primary handling; a companion must never authorize a primary-only wipe.
+        ImportReport primaryProbe;
+        if (!yieldsProfile(body, primaryProbe)) return true;
+
+        QByteArray companionBody;
+        Configs::SubUserInfo companionInfo;
+        QString companionError;
+        ImportReport companionProbe;
+        const bool downloaded = fetch(companionUrl, name, identity, companionBody, companionInfo, &companionError);
+        if (!downloaded || !yieldsProfile(companionBody, companionProbe)) {
+            if (companionError.isEmpty()) companionError = QCoreApplication::translate("Validation", "The TrustTunnel subscription returned no profiles.");
+            if (error != nullptr) *error = companionError;
+            return false;
+        }
+        body.append('\n').append(companionBody);
+        return true;
+    }
+
+    UpdateOutcome GroupUpdater::importDocuments(int gid, QList<QByteArray> documents, const QString &emptyReason, bool quiet, bool deduplicate) {
         auto &settings = Configs::dataManager->settingsRepo;
         settings->imported_count = 0;
-        ImportSink sink(gid, nullptr);
+        QList<OldEntry> old;
+        if (deduplicate) {
+            const int destination = gid < 0 ? settings->current_group : gid;
+            const auto group = Configs::dataManager->groupsRepo->GetGroup(destination);
+            if (group != nullptr) {
+                forEachProfile(withoutSelectors(group->profiles), [&](const std::shared_ptr<Configs::Profile> &ent) {
+                    old.append({ent->id, {contentKeyOf(*ent), identityKeyOf(*ent)}, ent->outbound->DisplayTypeAndName()});
+                });
+            }
+        }
+        ContentIndex index(old);
+        ImportSink sink(gid, deduplicate ? &index : nullptr);
         ImportReport report;
 
         MW_show_log(">>>>>>>> " + QObject::tr("Processing subscription data..."));
@@ -1001,28 +1037,12 @@ namespace Subscription {
         if (importRoute && (routing.isEmpty() || routing.compare(QLatin1String("off"), Qt::CaseInsensitive) == 0)) {
             if (const auto shipped = ShippedRoutingLink(body); !shipped.isEmpty()) routing = shipped;
         }
-        if (const auto companionUrl = trustTunnelCompanionUrl(url); !companionUrl.isEmpty()) {
-            ImportReport primaryProbe;
-            if (!yieldsProfile(body, primaryProbe)) {
-                UpdateOutcome outcome;
-                outcome.gid = gid;
-                applyRefresh(group, url, std::move(body), subInfo, surface, outcome);
-                return outcome;
-            }
-            QByteArray companionBody;
-            Configs::SubUserInfo companionInfo;
-            QString companionError;
-            ImportReport companionProbe;
-            const bool downloaded = fetch(companionUrl, group->name, ResolveIdentity(group.get()), companionBody, companionInfo, &companionError);
-            if (!downloaded || !yieldsProfile(companionBody, companionProbe)) {
-                if (companionError.isEmpty()) companionError = QCoreApplication::translate("Validation", "The TrustTunnel subscription returned no profiles.");
-                auto outcome = groupUpdaterFailure(gid, UpdateOutcome::Failure::Fetch, groupUpdaterFetchError(companionError));
-                outcome.report.addFatal(fetchFailure(companionError));
-                if (surface == Surface::Log) logImportReport(outcome.report);
-                else ShowImportReport(reportTitle(surface, group->name), outcome.report);
-                return outcome;
-            }
-            body.append('\n').append(companionBody);
+        if (!mergeTrustTunnelCompanion(url, group->name, ResolveIdentity(group.get()), body, &error)) {
+            auto outcome = groupUpdaterFailure(gid, UpdateOutcome::Failure::Fetch, groupUpdaterFetchError(error));
+            outcome.report.addFatal(fetchFailure(error));
+            if (surface == Surface::Log) logImportReport(outcome.report);
+            else ShowImportReport(reportTitle(surface, group->name), outcome.report);
+            return outcome;
         }
         UpdateOutcome outcome;
         outcome.gid = gid;

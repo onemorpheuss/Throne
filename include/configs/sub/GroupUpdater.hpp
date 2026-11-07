@@ -133,10 +133,13 @@ namespace Subscription {
                           const Configs::SubUserInfo &subInfo, Surface surface, UpdateOutcome &result);
         void afterUrlTest(int gid);
         // emptyReason replaces the generic "nothing found" when no profile is imported; quiet never shows a report box.
-        UpdateOutcome importDocuments(int gid, QList<QByteArray> documents, const QString &emptyReason = {}, bool quiet = false);
+        UpdateOutcome importDocuments(int gid, QList<QByteArray> documents, const QString &emptyReason = {}, bool quiet = false,
+                                      bool deduplicate = false);
         // *routing gets the "routing" header (a Happ routing link), empty when absent.
         bool fetch(const QString &url, const QString &name, const RequestIdentity &identity, QByteArray &body,
                    Configs::SubUserInfo &subInfo, QString *error = nullptr, QString *routing = nullptr);
+        bool mergeTrustTunnelCompanion(const QString &url, const QString &name, const RequestIdentity &identity,
+                                       QByteArray &body, QString *error);
         [[nodiscard]] qint64 autoUpdateDue(const Configs::Group &group, qint64 interval) const;
 
         // UI thread only: in-memory, so a restart retries a failing group once.
