@@ -26,13 +26,25 @@ func (s *server) Start(ctx context.Context, in *gen.LoadConfigReq) (out *gen.Err
 	defer lifecycleMu.Unlock()
 
 	var err error
+	ownsSidecars := false
 
+	stopSidecars := func() {
+		sysdns.Release()
+		if extraProcess != nil {
+			extraProcess.Stop()
+			extraProcess = nil
+		}
+		closeXray()
+	}
 	defer func() {
 		out = &gen.ErrorResp{}
 		if err != nil {
+			if ownsSidecars {
+				stopSidecars()
+				setBoxInstance(nil, nil, nil)
+				autoRedirectMark.Store(0)
+			}
 			out.Error = To(err.Error())
-			setBoxInstance(nil, nil, nil)
-			autoRedirectMark.Store(0)
 		}
 	}()
 
@@ -47,6 +59,7 @@ func (s *server) Start(ctx context.Context, in *gen.LoadConfigReq) (out *gen.Err
 		err = errors.New("instance already started")
 		return
 	}
+	ownsSidecars = true
 
 	if *in.NeedExtraProcess {
 		args, e := shlex.Split(in.GetExtraProcessArgs())
@@ -123,20 +136,10 @@ func (s *server) Start(ctx context.Context, in *gen.LoadConfigReq) (out *gen.Err
 		setXrayFullGates(gates)
 	}
 
-	stopSidecars := func() {
-		sysdns.Release()
-		if extraProcess != nil {
-			extraProcess.Stop()
-			extraProcess = nil
-		}
-		closeXray()
-	}
-
 	// A macOS Tun whose system resolver cannot be pointed at it would start with every lookup scoped past it.
 	systemDNS := runtime.GOOS == "darwin" && in.GetTunIpv4Cidr() != ""
 	if systemDNS {
 		if e := sysdns.Prepare(); e != nil {
-			stopSidecars()
 			err = E.Cause(e, "set up the system DNS")
 			return
 		}
@@ -156,7 +159,6 @@ func (s *server) Start(ctx context.Context, in *gen.LoadConfigReq) (out *gen.Err
 		}
 	})
 	if err != nil {
-		stopSidecars()
 		return
 	}
 	setBoxInstance(box, cancel, routeRules)
@@ -165,7 +167,6 @@ func (s *server) Start(ctx context.Context, in *gen.LoadConfigReq) (out *gen.Err
 		if e := sysdns.Apply(box.Network().InterfaceMonitor()); e != nil {
 			sysdns.Release()
 			box.CloseWithTimeout(cancel, time.Second*2, log.Println, true)
-			stopSidecars()
 			err = E.Cause(e, "set the system DNS")
 			return
 		}
