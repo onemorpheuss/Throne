@@ -938,8 +938,18 @@ namespace Subscription {
         if (companionUrl.isEmpty()) return true;
 
         // Preserve the caller's existing empty-primary handling; a companion must never authorize a primary-only wipe.
-        ImportReport primaryProbe;
-        if (!yieldsProfile(body, primaryProbe)) return true;
+        bool hasProfiles = false;
+        bool hasTrustTunnel = false;
+        ImportReport primaryReport;
+        ParseSink primaryProbe;
+        primaryProbe.profile = [&](const std::shared_ptr<Configs::Profile> &ent) {
+            hasProfiles = true;
+            if (ent->type == QLatin1String("trusttunnel")) hasTrustTunnel = true;
+        };
+        primaryProbe.report = [&primaryReport](const ParseReport &item) { primaryReport.add(item); };
+        ParseDocument(body, primaryProbe);
+        // Newer userv.one responses already include TrustTunnel; fetching the companion again would duplicate every TT profile.
+        if (!hasProfiles || hasTrustTunnel) return true;
 
         QByteArray companionBody;
         Configs::SubUserInfo companionInfo;
