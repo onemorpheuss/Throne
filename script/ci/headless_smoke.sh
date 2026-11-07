@@ -227,12 +227,12 @@ leg_a() {
 
     say "Reject excessively nested subscription wrappers"
     nested=$(python3 -I -c 'import base64,json; value={"version":1,"format":"trusttunnel-deeplink","profiles":[{"name":"nested","profile":"tt://user:pass@nested.example.com:443"}]}
-for _ in range(32):
+for _ in range(20):
  value={"version":1,"format":"trusttunnel-deeplink","profiles":[{"name":"nested","profile":base64.urlsafe_b64encode(json.dumps(value,separators=(",",":")).encode()).decode().rstrip("=")}]}
 print(json.dumps(value,separators=(",",":")))')
     if out=$(printf '%s' "$nested" | ctl --timeout 10s --json import - 2>&1); then
         echo "$out"
-        fail "32 nested subscription wrappers bypassed the parser depth limit"
+        fail "20 nested subscription wrappers bypassed the parser depth limit"
     fi
     case "$out" in
         *"error: nothing_imported:"*) ;;
