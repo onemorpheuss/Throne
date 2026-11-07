@@ -29,6 +29,8 @@ namespace Configs_network {
         QList<QPair<QByteArray, QByteArray>> headers;
         QSsl::SslProtocol tlsProtocol = QSsl::SecureProtocols;
         bool http2 = true;
+        // Abort a stalled request after this many milliseconds.
+        int timeoutMs = 10000;
         // Verifies the certificate even when net_insecure is on.
         bool strictTls = false;
     };

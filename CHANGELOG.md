@@ -4,7 +4,7 @@
 * Import TrustTunnel deeplink JSON subscriptions and preserve server names
 * Automatically merge the userv.one TrustTunnel companion feed into ordinary subscriptions and direct URL imports
 * Skip the companion feed when the primary subscription already contains TrustTunnel profiles
-* Use HTTP/1.1 by default for userv.one subscription downloads to avoid companion-response timeouts
+* Allow up to 60 seconds for userv.one subscription downloads so cold TrustTunnel generation can finish
 * Reuse existing profiles on repeated userv.one direct imports instead of creating duplicates
 * Keep existing profiles unchanged when either subscription source is empty or unavailable
 * Enable hourly subscription updates by default for new installations; existing update preferences are preserved

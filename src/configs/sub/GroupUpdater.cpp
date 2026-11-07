@@ -831,9 +831,8 @@ namespace Subscription {
         options.headers = identityHeaders(identity);
         options.tlsProtocol = tlsProtocolOf(identity.tlsVersion);
         options.http2 = identity.httpVersion != Configs::subHttpVersion::http11;
-        // userv.one companion responses can stall under HTTP/2; the same requests complete immediately over HTTP/1.1.
-        if (identity.httpVersion == Configs::subHttpVersion::automatic &&
-            QUrl(url).host().compare(QLatin1String("subscription.userv.one"), Qt::CaseInsensitive) == 0) options.http2 = false;
+        // TrustTunnel deeplink generation may cold-start SSH collection on the server and exceed the generic 10 s timeout.
+        if (QUrl(url).host().compare(QLatin1String("subscription.userv.one"), Qt::CaseInsensitive) == 0) options.timeoutMs = 60000;
         auto resp = NetworkRequestHelper::HttpGet(url, options);
         if (!resp.error.isEmpty()) {
             const auto reason = withoutUrls(resp.error, url);

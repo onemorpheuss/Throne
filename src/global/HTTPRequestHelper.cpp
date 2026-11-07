@@ -81,7 +81,7 @@ namespace Configs_network {
         const qint64 maxBytes = options.maxBytes;
         QNetworkRequest request;
         QNetworkAccessManager accessManager;
-        accessManager.setTransferTimeout(10000);
+        accessManager.setTransferTimeout(options.timeoutMs);
         request.setUrl(url);
         QString proxyError;
         if (RequestUsesMixedInbound(options.useProxy, &proxyError)) accessManager.setProxy(MixedInboundProxy());
