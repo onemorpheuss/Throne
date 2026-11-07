@@ -68,24 +68,3 @@ brew install --cask throneproj/tap/throne
 Various formats are supported, including share links, various JSON representation of Sing-box configs, and v2rayN link format as well as limited support for Shadowsocks and Clash formats.
 
 Deeplinks are also supported, read the [documentation](https://throneproj.github.io/advanced/deeplinks/) for more information.
-
-## Credits
-
-- [SagerNet/sing-box](https://github.com/SagerNet/sing-box)
-- [XTLS/Xray-core](https://github.com/xtls/xray-core)
-- [Qv2ray](https://github.com/Qv2ray/Qv2ray)
-- [Qt](https://www.qt.io/)
-- [simple-protobuf](https://github.com/tonda-kriz/simple-protobuf)
-- [fkYAML](https://github.com/fktn-k/fkYAML)
-- [quirc](https://github.com/dlbeer/quirc)
-- [srombauts/sqlitecpp](https://github.com/srombauts/sqlitecpp)
-
-## Supporting Throne
-
-If Throne is useful to you, you can support its development through [GitHub Sponsors](https://github.com/sponsors/Mahdi-zarei) or with a crypto donation to one of these addresses:
-
-| Coin | Network | Address |
-|:--|:--|:--|
-| **USDT** · **TRX** | TRON (TRC20) | `THR2gbWMaTZh8ACk3VYAAyNRVffvdTRikj` |
-| **USDT** · **USDC** | BNB Smart Chain (BEP20) · Ethereum (ERC20) | `0x7c2dF1867f5AaEE807a835fB3c55E4de4507888A` |
-| **XMR** | Monero | `4AYwwN8qMQCSUb3XfwzfrLNPMHfDme6U7CmNtQY4idCF8GtHHLG68VA3iZK867ypuKFr8J7CjXiJ96eFUA2T6aLVRUbgY3A` |
