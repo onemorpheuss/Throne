@@ -1,3 +1,11 @@
+#### 1.4.1-onemorpheuss.1
+
+* Enable hourly subscription updates by default for new installations; existing update preferences are preserved
+* Add regression tests for VMess, VLESS, Hysteria2, TrustTunnel and AmneziaWG configs
+* Stop extra processes and Xray sidecars when profile startup fails
+* Preserve the running profile and its sidecars on duplicate Start requests
+* Include all Throne 1.4.1 upstream fixes and improvements
+
 #### 1.4.1
 
 ### Join [Throne's Telegram channel](https://t.me/ThroneProj) for announcements and community support

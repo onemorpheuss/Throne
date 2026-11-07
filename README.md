@@ -65,6 +65,6 @@ brew install --cask throneproj/tap/throne
 
 ## Subscription Formats
 
-Various formats are supported, including share links, various JSON representation of Sing-box configs, and v2rayN link format as well as limited support for Shadowsocks and Clash formats.
+Various formats are supported, including share links, various JSON representation of Sing-box configs, and v2rayN link format as well as limited support for Shadowsocks and Clash formats. New installations automatically refresh subscription groups every 60 minutes; the global or per-group interval and opt-out are available in the subscription settings.
 
 Deeplinks are also supported, read the [documentation](https://throneproj.github.io/advanced/deeplinks/) for more information.

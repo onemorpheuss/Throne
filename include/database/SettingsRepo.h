@@ -175,7 +175,7 @@ namespace Configs {
         int sub_tls_version = 0;
         int sub_http_version = 0;
         // Sign encodes enabled (negative = off), magnitude = interval minutes (ignored if < 30).
-        int sub_auto_update = -30;
+        int sub_auto_update = 60; // New installations refresh subscriptions hourly.
         // Follow a server's profile-update-interval instead of sub_auto_update's minutes.
         bool sub_respect_server_interval = false;
         bool sub_clear = false;
