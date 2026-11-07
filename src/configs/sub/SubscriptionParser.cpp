@@ -777,12 +777,13 @@ namespace Subscription {
                 const auto profiles = doc.object()["profiles"].toArray();
                 bool linkCollection = doc.object()["profiles"].isArray() && !profiles.isEmpty();
                 for (const auto &item : profiles) {
-                    linkCollection = linkCollection && item.isObject() && item["profile"].isString();
+                    linkCollection = linkCollection && item.isObject() && item.toObject()["profile"].isString();
                 }
                 if (linkCollection) {
                     for (const auto &item : profiles) {
-                        const auto link = item["profile"].toString().toUtf8();
-                        document(scan::view(link), true, true, depth + 1, item["name"].toString());
+                        const auto object = item.toObject();
+                        const auto link = object["profile"].toString().toUtf8();
+                        document(scan::view(link), true, true, depth + 1, object["name"].toString());
                     }
                     return;
                 }
