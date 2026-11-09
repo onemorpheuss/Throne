@@ -238,6 +238,7 @@ namespace Engine::SettingsRegistryImpl {
             list << intKey(QStringLiteral("test_timeout_ms"), &Settings::url_test_timeout_ms, 0, 60000, Restart::None);
             list << autoUpdateKey(QStringLiteral("sub_auto_update"), &Settings::sub_auto_update, 30);
             list << boolKey(QStringLiteral("sub_respect_server_interval"), &Settings::sub_respect_server_interval, Restart::None, CheckPeriodic);
+            list << boolKey(QStringLiteral("sub_clear"), &Settings::sub_clear, Restart::None);
             list << autoUpdateKey(QStringLiteral("route_auto_update"), &Settings::route_auto_update, 1440);
             list << boolKey(QStringLiteral("kill_switch"), &Settings::kill_switch, Restart::None, ApplyKillSwitch);
             list << boolKey(QStringLiteral("tun_strict_route"), &Settings::vpn_strict_route, Restart::Tun, ApplyKillSwitch);

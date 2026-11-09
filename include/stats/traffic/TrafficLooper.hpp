@@ -4,6 +4,7 @@
 #include <QList>
 #include <QMutex>
 #include <QVector>
+#include <QSet>
 
 #include <deque>
 #include <string>
@@ -63,7 +64,7 @@ namespace Stats {
 
         QList<TrafficLooperGroup> groups;
         QList<TrafficLine> lines;
-        QList<int> creditedIds;
+        QSet<int> pendingUiIds;
         std::deque<RateProbe> rateWindow;
         qint64 lastProbeMs = 0;
     };

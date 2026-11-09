@@ -56,6 +56,7 @@ namespace Stats {
                     profile->traffic_uplink += up;
                     profile->traffic_downlink += down;
                     trafficStatsManager->AddConfigDelta(profile->id, up, down);
+                    if (profile->id >= 0) pendingUiIds.insert(profile->id);
                 }
                 group.dirty = true;
             }
@@ -111,6 +112,7 @@ namespace Stats {
             }
 
             if (!loop_enabled) {
+                QList<int> stoppedIds;
                 {
                     QMutexLocker lk(&loop_mutex);
                     rateWindow.clear();
@@ -127,8 +129,13 @@ namespace Stats {
                     });
                 }
                 if (const auto now = MonotonicMs(); emitDue(now)) {
+                    {
+                        QMutexLocker lk(&loop_mutex);
+                        stoppedIds = pendingUiIds.values();
+                        pendingUiIds.clear();
+                    }
                     runOnUiThread([=] {
-                        if (auto *sink = CurrentStatsSink()) sink->onTrafficSample(TrafficSample{.monoMs = now});
+                        if (auto *sink = CurrentStatsSink()) sink->onTrafficSample(TrafficSample{.monoMs = now, .creditedIds = stoppedIds});
                     });
                 }
                 continue;
@@ -169,7 +176,8 @@ namespace Stats {
                     direct->downlink_rate = directDown;
                     direct->uplink_rate = directUp;
                     status = QObject::tr("Proxy: %1\nDirect: %2").arg(DisplaySpeed(proxy), DisplaySpeed(direct));
-                    ids = creditedIds;
+                    ids = pendingUiIds.values();
+                    pendingUiIds.clear();
                 }
             }
 
@@ -257,17 +265,7 @@ namespace Stats {
         newLines << TrafficLine{QStringLiteral("direct"), QObject::tr("Direct"), TrafficLineKind::Direct};
         for (qsizetype i = 0; i < newGroups.size(); ++i) newGroups[i].line = lineOf.value(groupKeys[i], 0);
 
-        QList<int> ids;
-        QSet<int> seen;
-        for (const auto& group : newGroups) {
-            for (const auto& profile : group.profiles) {
-                if (!profile || profile->id < 0) continue;
-                if (seen.contains(profile->id)) continue;
-                seen.insert(profile->id);
-                ids << profile->id;
-            }
-        }
-
+        QList<int> changedIds;
         {
             QMutexLocker lk(&loop_mutex);
             if (!proxy) proxy = std::make_shared<TrafficLooperEntry>();
@@ -276,9 +274,15 @@ namespace Stats {
             *direct = TrafficLooperEntry{QStringLiteral("direct")};
             groups = newGroups;
             lines = newLines;
-            creditedIds = ids;
+            changedIds = pendingUiIds.values();
+            pendingUiIds.clear();
             rateWindow.clear();
             lastProbeMs = MonotonicMs();
+        }
+        if (!changedIds.isEmpty()) {
+            runOnUiThread([changedIds] {
+                if (auto *sink = CurrentStatsSink()) sink->onTrafficProfilesChanged(changedIds);
+            });
         }
         runOnUiThread([newLines] {
             if (auto *sink = CurrentStatsSink()) sink->onTrafficLines(newLines);

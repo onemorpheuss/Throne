@@ -6,6 +6,7 @@
 #include <QApplication>
 #include <QMimeData>
 #include <QPalette>
+#include <QSet>
 
 #include "include/configs/generate.h"
 #include "include/database/GroupsRepo.h"
@@ -246,6 +247,16 @@ void ProfilesTableModel::refreshProfileId(int profileId) {
     QModelIndex top = index(r, 0);
     QModelIndex bottom = index(r, columnCount() - 1);
     emit dataChanged(top, bottom);
+}
+
+void ProfilesTableModel::refreshTrafficIds(const QList<int> &profileIds) {
+    QSet<int> seen;
+    for (const int profileId : profileIds) {
+        if (seen.contains(profileId) || !id2row.contains(profileId)) continue;
+        seen.insert(profileId);
+        const auto cell = index(id2row.value(profileId), ColTraffic);
+        emit dataChanged(cell, cell, {Qt::DisplayRole});
+    }
 }
 
 void ProfilesTableModel::invalidateAddresses() {

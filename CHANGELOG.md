@@ -1,3 +1,9 @@
+#### 1.4.3
+
+* Stop subscription dry-run probes after finding the required profile instead of reparsing every document
+* Refresh only changed traffic cells instead of invalidating every profile column each second
+* Coalesce profile-column layout work, debounce group-setting writes, and persist imported group membership once per import
+
 #### 1.4.2
 
 * Include all Throne 1.4.1 upstream fixes and improvements

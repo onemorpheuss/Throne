@@ -143,6 +143,11 @@ namespace Engine {
         emit trafficSampled(sample);
     }
 
+    void StatsService::onTrafficProfilesChanged(const QList<int> &ids) {
+        ENGINE_CHECK_MAIN_THREAD();
+        emit trafficProfilesChanged(ids);
+    }
+
     void StatsService::onTrafficStopped() {
         ENGINE_CHECK_MAIN_THREAD();
         emit trafficStopped();

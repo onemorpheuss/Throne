@@ -53,7 +53,7 @@ namespace Configs {
         
         bool AddProfile(std::shared_ptr<Profile>& profile, int gid = -1);
         
-        bool AddProfileBatch(QList<std::shared_ptr<Profile>>& profiles, int gid = -1);
+        bool AddProfileBatch(QList<std::shared_ptr<Profile>>& profiles, int gid = -1, bool updateGroup = true);
         
         std::shared_ptr<Profile> GetProfile(int id) const;
 

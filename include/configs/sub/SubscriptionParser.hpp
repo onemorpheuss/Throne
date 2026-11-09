@@ -22,6 +22,8 @@ namespace Subscription {
     struct ParseSink {
         std::function<void(std::shared_ptr<Configs::Profile>)> profile;
         std::function<void(const ParseReport &)> report;
+        // Dry-run probes can stop cooperatively once their question is answered; imports leave this empty.
+        std::function<bool()> shouldStop;
     };
 
     // Profiles are handed to the sink in document order; the body is consumed in place.

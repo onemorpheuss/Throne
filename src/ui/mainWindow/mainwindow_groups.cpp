@@ -90,6 +90,7 @@ void MainWindow::show_group(int gid) {
     }
 
     if (Configs::dataManager->settingsRepo->current_group != gid) {
+        flushPendingGroupSave();
         saveProfileFocusState();
         if (auto lastGroup = Configs::dataManager->groupsRepo->CurrentGroup()) {
             lastGroup->scroll_last_profile = ui->profilesTableView->firstVisibleRow();

@@ -417,13 +417,16 @@ void MainWindow::refresh_traffic_graph_settings() {
 }
 
 void MainWindow::refresh_proxy_list_column_size() {
-    const auto group = Configs::dataManager->groupsRepo->CurrentGroup();
-    if (!group || !ui->profilesTableView->isVisible()) return;
+    if (!Configs::dataManager->groupsRepo->CurrentGroup() ||
+        !ui->profilesTableView->isVisible() || m_columnSizeQueued) return;
+    m_columnSizeQueued = true;
 
     auto *hHeader = dynamic_cast<ProfilesTableFilterHeader*>(ui->profilesTableView->horizontalHeader());
-    QTimer::singleShot(0, ui->profilesTableView, [=, this]() {
+    QTimer::singleShot(50, ui->profilesTableView, [=, this]() {
+        m_columnSizeQueued = false;
+        const auto group = Configs::dataManager->groupsRepo->CurrentGroup();
         // The resizeSection / scrollbar-policy changes below re-enter here via valueChanged.
-        if (m_adjustingColumns) return;
+        if (!group || m_adjustingColumns) return;
         m_adjustingColumns = true;
         QScrollBar *vBar = ui->profilesTableView->verticalScrollBar();
         const bool vBarBlocked = vBar->blockSignals(true);

@@ -96,8 +96,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(host->stats(), &Engine::StatsService::trafficSampled, this, [this](const Stats::TrafficSample &s) {
         // An idle tick carries no status, and refresh_status("") would redo the whole status bar every second.
         if (s.coreRunning) refresh_status(s.status);
-        add_traffic_point(s.monoMs, s.coreRunning, s.values, s.proxyDown, s.proxyUp, s.directDown, s.directUp);
-        if (!s.creditedIds.isEmpty()) refresh_proxy_list(s.creditedIds);
+        if (s.monoMs > 0) {
+            add_traffic_point(s.monoMs, s.coreRunning, s.values, s.proxyDown, s.proxyUp, s.directDown, s.directUp);
+        }
+        if (!s.creditedIds.isEmpty()) profilesTableModel->refreshTrafficIds(s.creditedIds);
+    });
+    connect(host->stats(), &Engine::StatsService::trafficProfilesChanged, this, [this](const QList<int> &ids) {
+        profilesTableModel->refreshTrafficIds(ids);
     });
     connect(host->stats(), &Engine::StatsService::trafficStopped, this, [this] { refresh_status("STOP"); });
     connect(host->stats(), &Engine::StatsService::connectionsUpdated, this, &MainWindow::UpdateConnectionList);
@@ -420,7 +425,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         for (int i = 0; i < ui->profilesTableView->horizontalHeader()->count(); i++) {
             group->column_width.push_back(ui->profilesTableView->horizontalHeader()->sectionSize(i));
         }
-        Configs::dataManager->groupsRepo->Save(Configs::dataManager->groupsRepo->CurrentGroup());
+        m_groupSavePending = true;
+        m_groupSaveDebounce->start();
     });
     ui->profilesTableView->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->profilesTableView->horizontalHeader(), &QWidget::customContextMenuRequested, this, [this](const QPoint& pos) {
@@ -575,6 +581,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         Configs::dataManager->settingsRepo->last_filter_column = column;
         Configs::dataManager->settingsRepo->Save();
     });
+
+    m_groupSaveDebounce = new QTimer(this);
+    m_groupSaveDebounce->setSingleShot(true);
+    m_groupSaveDebounce->setInterval(400);
+    connect(m_groupSaveDebounce, &QTimer::timeout, this, &MainWindow::flushPendingGroupSave);
 
     m_filterRefreshDebounce = new QTimer(this);
     m_filterRefreshDebounce->setSingleShot(true);
@@ -1002,6 +1013,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 }
 
 MainWindow::~MainWindow() {
+    flushPendingGroupSave();
     if (auto *h = Engine::host()) h->detachFrontEnd();
     SetUserLogSink({});
     SetDialogMessageSink({});

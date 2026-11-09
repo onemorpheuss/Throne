@@ -245,6 +245,40 @@ print(json.dumps(value,separators=(",",":")))')
     echo "$out"
     expect_eq "mixed-document imported profiles" "$(jget imported <<<"$out")" 2
 
+    say "Keep real imports and diagnostics running past the first profile"
+    out=$(printf 'socks5://127.0.0.1:1081#before-probe-stop\ninvalid://discarded\nsocks5://127.0.0.1:1082#after-probe-stop\n' | ctl --json import -)
+    echo "$out"
+    expect_eq "real import profile count" "$(jget imported <<<"$out")" 2
+    expect_eq "real import diagnostic count" "$(jget failed <<<"$out")" 1
+
+    say "Persist a multi-chunk import in one group membership batch"
+    out=$(python3 -I -c 'print("\n".join(f"socks5://127.0.0.1:1080#batch-{i:03d}" for i in range(501)))' | ctl --json import -)
+    echo "$out"
+    expect_eq "multi-chunk imported profiles" "$(jget imported <<<"$out")" 501
+    out=$(ctl --json profiles)
+    expect_eq "multi-chunk group membership" "$(python3 -I -c 'import json,sys; print(sum(p["name"].startswith("batch-") for p in json.load(sys.stdin)["profiles"]))' <<<"$out")" 501
+
+    say "Clear and replace a subscription without orphaning profiles"
+    ctl settings set sub_clear=true
+    out=$(ctl --json sub add 'http://fixture.test:18080/subscription' --name 'clear-refresh')
+    echo "$out"
+    expect_eq "clear-refresh initial membership" "$(jget group.profile_count <<<"$out")" 501
+    gid=$(jget group.id <<<"$out")
+    out=$(ctl --json sub update "$gid")
+    echo "$out"
+    expect_eq "clear-refresh update ok" "$(jget results.0.ok <<<"$out")" true
+    out=$(ctl --json profiles)
+    expect_eq "clear-refresh replacement membership" "$(python3 -I -c 'import json,sys; print(sum(p["name"].startswith("clear-batch-") for p in json.load(sys.stdin)["profiles"]))' <<<"$out")" 501
+    expect_eq "clear-refresh no orphan rows" "$(python3 -I -c 'import json,sys; print(len(json.load(sys.stdin)["profiles"]))' <<<"$out")" 501
+    before_ids=$(python3 -I -c 'import json,sys; print(",".join(str(p["id"]) for p in sorted(json.load(sys.stdin)["profiles"],key=lambda p:p["id"])))' <<<"$out")
+    ctl settings set sub_clear=false
+    out=$(ctl --json sub update "$gid")
+    expect_eq "non-clear refresh update ok" "$(jget results.0.ok <<<"$out")" true
+    out=$(ctl --json profiles)
+    expect_eq "non-clear refresh membership" "$(python3 -I -c 'import json,sys; print(sum(p["name"].startswith("clear-batch-") for p in json.load(sys.stdin)["profiles"]))' <<<"$out")" 501
+    after_ids=$(python3 -I -c 'import json,sys; print(",".join(str(p["id"]) for p in sorted(json.load(sys.stdin)["profiles"],key=lambda p:p["id"])))' <<<"$out")
+    expect_eq "non-clear refresh reuses IDs" "$after_ids" "$before_ids"
+
     say "thronectl connect $id"
     ctl --timeout 90s connect "$id"
     out=$(ctl --json status)

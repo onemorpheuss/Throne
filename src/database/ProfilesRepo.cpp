@@ -228,7 +228,7 @@ namespace Configs {
         return true;
     }
 
-    bool ProfilesRepo::AddProfileBatch(QList<std::shared_ptr<Profile>>& profiles, int gid) {
+    bool ProfilesRepo::AddProfileBatch(QList<std::shared_ptr<Profile>>& profiles, int gid, bool updateGroup) {
         gid = gid < 0 ? Configs::dataManager->settingsRepo->current_group : gid;
         auto group = dataManager->groupsRepo->GetGroup(gid);
         if (!group) return false;
@@ -264,8 +264,10 @@ namespace Configs {
         for (const auto& profile : toAdd) {
             profileIDs << profile->id;
         }
-        group->AddProfileBatch(profileIDs);
-        dataManager->groupsRepo->Save(group);
+        if (updateGroup) {
+            group->AddProfileBatch(profileIDs);
+            dataManager->groupsRepo->Save(group);
+        }
 
         return true;
     }

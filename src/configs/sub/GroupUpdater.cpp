@@ -183,7 +183,7 @@ namespace Subscription {
 
             void flush() {
                 if (chunk.isEmpty()) return;
-                if (Configs::dataManager->profilesRepo->AddProfileBatch(chunk, gid)) {
+                if (Configs::dataManager->profilesRepo->AddProfileBatch(chunk, gid, false)) {
                     for (qsizetype i = 0; i < chunk.size(); ++i) {
                         entries[entryIndex[i]].id = chunk[i]->id;
                         added << chunk[i]->id;
@@ -197,8 +197,12 @@ namespace Subscription {
             // Sorted here rather than queued, so the SubscriptionFinished redraw already shows the order.
             void finish() {
                 flush();
+                if (added.isEmpty()) return;
                 const auto group = Configs::dataManager->groupsRepo->GetGroup(destination);
-                if (group != nullptr && group->Reposition(added)) Configs::dataManager->groupsRepo->Save(group);
+                if (group == nullptr) return;
+                group->AddProfileBatch(added);
+                group->Reposition(added);
+                Configs::dataManager->groupsRepo->Save(group);
             }
 
             // Rows that really reached the database: added, or reused from the group.
@@ -238,6 +242,7 @@ namespace Subscription {
             ParseSink probe;
             probe.profile = [&found](const std::shared_ptr<Configs::Profile> &) { found = true; };
             probe.report = [&diagnostics](const ParseReport &item) { diagnostics.add(item); };
+            probe.shouldStop = [&found] { return found; };
             ParseDocument(body, probe);
             return found;
         }
@@ -949,6 +954,7 @@ namespace Subscription {
             if (ent->type == QLatin1String("trusttunnel")) hasTrustTunnel = true;
         };
         primaryProbe.report = [&primaryReport](const ParseReport &item) { primaryReport.add(item); };
+        primaryProbe.shouldStop = [&hasTrustTunnel] { return hasTrustTunnel; };
         ParseDocument(body, primaryProbe);
         // Newer userv.one responses already include TrustTunnel; fetching the companion again would duplicate every TT profile.
         if (!hasProfiles || hasTrustTunnel) return true;
@@ -1166,7 +1172,8 @@ namespace Subscription {
 
         MW_show_log(">>>>>>>> " + QObject::tr("Processing subscription data..."));
         ParseDocument(std::move(body), sinkFor(sink, report));
-        sink.flush();
+        if (cleared) sink.finish();
+        else sink.flush();
         MW_show_log(">>>>>>>> " + QObject::tr("Process complete, applying..."));
         report.setImported(sink.stored());
 

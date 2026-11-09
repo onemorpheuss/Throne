@@ -610,6 +610,10 @@ namespace Subscription {
             int produced = 0;
             int reported = 0;
 
+            bool stopped() const {
+                return sink.shouldStop && sink.shouldStop();
+            }
+
             void produce(ProfilePtr ent) {
                 if (ent == nullptr) return;
                 ++produced;
@@ -673,7 +677,7 @@ namespace Subscription {
         };
 
         void Parser::document(std::string_view raw, bool allowBase64, bool needParse, int depth, const QString &overrideName) {
-            if (depth > kMaxDepth) return;
+            if (stopped() || depth > kMaxDepth) return;
             const auto text = scan::trim(raw);
             if (text.empty()) return;
 
@@ -726,7 +730,10 @@ namespace Subscription {
             }
 
             if (needParse && text.find('\n') != npos) {
-                scan::forEachItem(text, [&](std::string_view item) { document(item, true, false, depth + 1, overrideName); });
+                scan::forEachItem(text, [&](std::string_view item) {
+                    document(item, true, false, depth + 1, overrideName);
+                    return !stopped();
+                });
                 return;
             }
 
@@ -781,6 +788,7 @@ namespace Subscription {
                 }
                 if (linkCollection) {
                     for (const auto &item : profiles) {
+                        if (stopped()) break;
                         const auto object = item.toObject();
                         const auto link = object["profile"].toString().toUtf8();
                         document(scan::view(link), true, true, depth + 1, object["name"].toString());
@@ -826,9 +834,15 @@ namespace Subscription {
                 accept(ent, parsed, std::move(issues), source);
             };
             int index = 0;
-            for (const auto &outbound : outbounds) handle(outbound, false, ++index);
+            for (const auto &outbound : outbounds) {
+                if (stopped()) break;
+                handle(outbound, false, ++index);
+            }
             index = 0;
-            for (const auto &endpoint : endpoints) handle(endpoint, true, ++index);
+            for (const auto &endpoint : endpoints) {
+                if (stopped()) break;
+                handle(endpoint, true, ++index);
+            }
         }
 
         void Parser::xray(const QJsonDocument &doc, XraySubType type) {
@@ -836,6 +850,7 @@ namespace Subscription {
             if (type == XraySubType::configJsonArray) {
                 int index = 0;
                 for (const auto &c : doc.array()) {
+                    if (stopped()) break;
                     ++index;
                     if (!c.isObject()) continue;
                     auto cfg = c.toObject();
@@ -862,6 +877,7 @@ namespace Subscription {
             }
             int index = 0;
             for (const auto &o : outbounds) {
+                if (stopped()) break;
                 ++index;
                 if (!o.isObject()) continue;
                 xrayOutbound(o.toObject(), index);
@@ -905,6 +921,7 @@ namespace Subscription {
         void Parser::sip008(const QJsonDocument &doc) {
             int index = 0;
             for (const auto &o : doc.object()["servers"].toArray()) {
+                if (stopped()) break;
                 ++index;
                 const auto source = [&] { return QCoreApplication::translate("Validation", "SIP008 server #%1").arg(index); };
                 const auto out = o.toObject();
@@ -933,6 +950,7 @@ namespace Subscription {
 
                 int index = 0;
                 for (const auto &node : root["proxies"]) {
+                    if (stopped()) break;
                     ++index;
                     QString reason;
                     try {
@@ -1035,6 +1053,7 @@ namespace Subscription {
                 }
                 if (!issues.isEmpty()) reportDocument(kind(), std::move(issues));
                 for (const auto &host : hosts) {
+                    if (stopped()) break;
                     auto ent = Configs::ProfilesRepo::NewProfile("openconnect");
                     ent->outbound = host;
                     accept(ent, true, {}, [&] { return namedFileSource(kind(), host->name); });
@@ -1212,6 +1231,7 @@ namespace Subscription {
                 }
 
                 for (const auto &e : entries) {
+                    if (stopped()) break;
                     // Several WireGuard confs in one export would share a single name, so tag each with its container type.
                     QString name = targetName;
                     if (e.isWireGuard && wgCount > 1 && !name.isEmpty() && !e.containerType.isEmpty()) {

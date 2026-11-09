@@ -40,7 +40,19 @@ class NoContentHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.server.log.line(f"HTTP {self.command} {self.headers.get('Host', '-')}{self.path} 204")
 
-    do_GET = _no_content
+    def _get(self):
+        if self.path == "/subscription":
+            body = "\n".join(f"socks5://127.0.0.1:1080#clear-batch-{i:03d}" for i in range(501)).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            self.server.log.line(f"HTTP GET {self.headers.get('Host', '-')}{self.path} 200")
+            return
+        self._no_content()
+
+    do_GET = _get
     do_HEAD = _no_content
 
     def log_message(self, format, *args):

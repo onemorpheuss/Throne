@@ -51,6 +51,9 @@ public:
 
     void refreshProfileId(int profileId);
 
+    // Traffic-only updates must not invalidate addresses, filters, selection or column layouts.
+    void refreshTrafficIds(const QList<int> &profileIds);
+
     // Re-resolves the Address column after IP lists or group endpoints change.
     void invalidateAddresses();
 

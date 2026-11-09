@@ -84,6 +84,8 @@ namespace Engine {
 
         void trafficSampled(const Stats::TrafficSample &sample);
 
+        void trafficProfilesChanged(const QList<int> &ids);
+
         void trafficStopped();
 
         void connectionsUpdated(const QList<Stats::ConnectionMetadata> &rows);
@@ -92,6 +94,8 @@ namespace Engine {
         void onTrafficLines(const QList<Stats::TrafficLine> &lines) override;
 
         void onTrafficSample(const Stats::TrafficSample &sample) override;
+
+        void onTrafficProfilesChanged(const QList<int> &ids) override;
 
         void onTrafficStopped() override;
 

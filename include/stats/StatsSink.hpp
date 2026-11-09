@@ -30,6 +30,8 @@ namespace Stats {
         virtual ~StatsSink() = default;
         virtual void onTrafficLines(const QList<TrafficLine> &lines) = 0;
         virtual void onTrafficSample(const TrafficSample &sample) = 0;
+        // Repaint changed profile counters without creating a chart/status sample.
+        virtual void onTrafficProfilesChanged(const QList<int> &ids) { Q_UNUSED(ids); }
         // The run ended; the next samples are idle ticks.
         virtual void onTrafficStopped() = 0;
         // Whole snapshot in the lister's order, never a delta.

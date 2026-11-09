@@ -131,7 +131,17 @@ void MainWindow::on_menu_integration_settings_triggered() {
     dialog->show();
 }
 
+void MainWindow::flushPendingGroupSave() {
+    if (!m_groupSavePending) return;
+    m_groupSavePending = false;
+    if (m_groupSaveDebounce != nullptr) m_groupSaveDebounce->stop();
+    if (const auto group = Configs::dataManager->groupsRepo->CurrentGroup()) {
+        Configs::dataManager->groupsRepo->Save(group);
+    }
+}
+
 void MainWindow::saveWindowState() {
+    flushPendingGroupSave();
     auto* settings = Configs::dataManager->settingsRepo.get();
 
     settings->mainWindowGeometry = this->saveGeometry().toBase64(QByteArray::Base64Encoding);

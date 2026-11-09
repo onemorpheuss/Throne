@@ -103,7 +103,7 @@ namespace Subscription::scan {
         }
     }
 
-    // One item per line, except that a line opening a bracket yields the whole balanced block.
+    // One item per line, except that a line opening a bracket yields the whole balanced block; `fn` returns false to stop.
     template <typename F>
     void forEachItem(std::string_view s, F &&fn) {
         const std::size_t n = s.size();
@@ -115,14 +115,14 @@ namespace Subscription::scan {
             }
             if (s[idx] == '{' || s[idx] == '[') {
                 if (const auto end = matchingClose(s, idx); end != std::string_view::npos) {
-                    fn(s.substr(idx, end - idx + 1));
+                    if (!fn(s.substr(idx, end - idx + 1))) return;
                     idx = end + 1;
                     continue;
                 }
             }
             std::size_t nl = s.find('\n', idx);
             if (nl == std::string_view::npos) nl = n;
-            fn(s.substr(idx, nl - idx));
+            if (!fn(s.substr(idx, nl - idx))) return;
             idx = nl + 1;
         }
     }

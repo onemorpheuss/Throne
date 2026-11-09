@@ -298,6 +298,8 @@ private:
     QString countryFilterString;
 
     QTimer *m_filterRefreshDebounce = nullptr;
+    QTimer *m_groupSaveDebounce = nullptr;
+    bool m_groupSavePending = false;
 
     bool m_profilesTableHadFocus = false;
     int m_profilesScrollValue = 0;
@@ -397,6 +399,7 @@ private:
 
     // Geometry, size and splitter into the settings, unsaved.
     void saveWindowState();
+    void flushPendingGroupSave();
 
     void request_unattended_exit(ExitReason reason);
 
@@ -468,6 +471,7 @@ private:
     void scheduleProxyListRefresh();
 
     bool m_adjustingColumns = false;
+    bool m_columnSizeQueued = false;
 
     void HotkeyEvent(const QString &id);
 
