@@ -260,7 +260,7 @@ print(json.dumps(value,separators=(",",":")))')
 
     say "Clear and replace a subscription without orphaning profiles"
     ctl settings set sub_clear=true
-    out=$(ctl --json sub add 'http://fixture.test:18080/subscription' --name 'clear-refresh')
+    out=$(ctl --json sub add 'http://127.0.0.1:18080/subscription' --name 'clear-refresh')
     echo "$out"
     expect_eq "clear-refresh initial membership" "$(jget group.profile_count <<<"$out")" 501
     gid=$(jget group.id <<<"$out")
