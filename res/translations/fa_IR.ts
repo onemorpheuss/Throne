@@ -1958,6 +1958,122 @@ For more information, see the document &quot;Configuration/DNS&quot;.</source>
         <source>Name cannot be empty.</source>
         <translation>نام نمیتواند خالی باشد</translation>
     </message>
+    <message>
+        <source>Tests each hop on its own and through every hop above it, without saving the chain</source>
+        <translation>هر هاپ را به‌تنهایی و از طریق همهٔ هاپ‌های بالای آن آزمایش می‌کند، بدون ذخیرهٔ زنجیره</translation>
+    </message>
+    <message>
+        <source>Test Hops</source>
+        <translation>آزمایش هاپ‌ها</translation>
+    </message>
+    <message>
+        <source>A chain can hold only one auto selector.</source>
+        <translation>یک زنجیره فقط می‌تواند یک انتخابگر خودکار داشته باشد.</translation>
+    </message>
+    <message>
+        <source>An auto selector cannot share a chain with an Extra Core profile or a custom config.</source>
+        <translation>انتخابگر خودکار نمی‌تواند با نمایهٔ هسته اضافی یا پیکربندی سفارشی در یک زنجیره باشد.</translation>
+    </message>
+    <message>
+        <source>Connect OK</source>
+        <translation>اتصال موفق</translation>
+    </message>
+    <message>
+        <source>%1 ms</source>
+        <translation>%1 ms</translation>
+    </message>
+    <message>
+        <source>On its own: %1</source>
+        <translation>به‌تنهایی: %1</translation>
+    </message>
+    <message>
+        <source>On its own: unavailable</source>
+        <translation>به‌تنهایی: غیرقابل دسترسی</translation>
+    </message>
+    <message>
+        <source>Invalid</source>
+        <translation>نامعتبر</translation>
+    </message>
+    <message>
+        <source>This profile is not valid; the log has the details.</source>
+        <translation>این نمایه معتبر نیست؛ جزئیات در گزارش آمده است.</translation>
+    </message>
+    <message>
+        <source>Works.</source>
+        <translation>کار می‌کند.</translation>
+    </message>
+    <message>
+        <source>Works through every hop above it.</source>
+        <translation>از طریق همهٔ هاپ‌های بالای خود کار می‌کند.</translation>
+    </message>
+    <message>
+        <source>Not reached</source>
+        <translation>نرسید</translation>
+    </message>
+    <message>
+        <source>A hop above already fails, so this says nothing about this hop.</source>
+        <translation>یک هاپ بالاتر از قبل کار نمی‌کند، پس این نتیجه چیزی دربارهٔ این هاپ نمی‌گوید.</translation>
+    </message>
+    <message>
+        <source>Fails through the hops above</source>
+        <translation>از طریق هاپ‌های بالا کار نمی‌کند</translation>
+    </message>
+    <message>
+        <source>Works on its own (%1), but not through the hops above it: the hop above may not reach this server, or may not carry its protocol (UDP, for example).</source>
+        <translation>به‌تنهایی کار می‌کند (%1)، اما نه از طریق هاپ‌های بالای خود: ممکن است هاپ بالایی به این سرور نرسد یا پروتکل آن (مثلاً UDP) را عبور ندهد.</translation>
+    </message>
+    <message>
+        <source>Unavailable</source>
+        <translation>غیرقابل دسترسی</translation>
+    </message>
+    <message>
+        <source>Tested on its own only: a hop above is not valid.</source>
+        <translation>فقط به‌تنهایی آزمایش شد: یکی از هاپ‌های بالا معتبر نیست.</translation>
+    </message>
+    <message>
+        <source>Not tested</source>
+        <translation>آزمایش نشده</translation>
+    </message>
+    <message>
+        <source>The test was stopped.</source>
+        <translation>آزمایش متوقف شد.</translation>
+    </message>
+    <message>
+        <source>The chain breaks at hop %1, %2.</source>
+        <translation>زنجیره در هاپ %1، %2 قطع می‌شود.</translation>
+    </message>
+    <message>
+        <source>Every hop works, and so does the group&apos;s landing proxy after them (%1).</source>
+        <translation>همهٔ هاپ‌ها کار می‌کنند و پروکسی خروجی گروه پس از آن‌ها هم کار می‌کند (%1).</translation>
+    </message>
+    <message>
+        <source>Every hop works, but the group&apos;s landing proxy fails through them.</source>
+        <translation>همهٔ هاپ‌ها کار می‌کنند، اما پروکسی خروجی گروه از طریق آن‌ها کار نمی‌کند.</translation>
+    </message>
+    <message>
+        <source>Every hop works, but the group&apos;s landing proxy is unavailable.</source>
+        <translation>همهٔ هاپ‌ها کار می‌کنند، اما پروکسی خروجی گروه در دسترس نیست.</translation>
+    </message>
+    <message>
+        <source>Every hop works through the ones above it.</source>
+        <translation>هر هاپ از طریق هاپ‌های بالای خود کار می‌کند.</translation>
+    </message>
+    <message>
+        <source>Testing…</source>
+        <translation>در حال آزمایش…</translation>
+    </message>
+    <message>
+        <source>Testing each hop on its own and through the hops above it…</source>
+        <translation>در حال آزمایش هر هاپ به‌تنهایی و از طریق هاپ‌های بالای آن…</translation>
+    </message>
+    <message>
+        <source>The hops changed during the test; test again.</source>
+        <translation>هاپ‌ها در حین آزمایش تغییر کردند؛ دوباره آزمایش کنید.</translation>
+    </message>
+    <message>
+        <source>Another test is running; try again when it finishes.</source>
+        <translation>آزمایش دیگری در حال اجراست؛ پس از پایان آن دوباره تلاش کنید.</translation>
+    </message>
 </context>
 <context>
     <name>EditCustom</name>
@@ -3592,6 +3708,14 @@ Error: %1</source>
         <source>The group &quot;%1&quot; uses its own routing profile, so the running profile keeps it.</source>
         <translation>گروه «%1» از نمایه مسیریابی خودش استفاده می‌کند، بنابراین نمایه در حال اجرا همان را نگه می‌دارد.</translation>
     </message>
+    <message>
+        <source>[Auto selector] Every running profile stopped working through the hops in front of it — rebuilding with the next candidates.</source>
+        <translation>[انتخابگر خودکار] همهٔ نمایه‌های در حال اجرا از طریق هاپ‌های جلوی آن از کار افتادند — ساخت دوباره با نامزدهای بعدی.</translation>
+    </message>
+    <message>
+        <source>The core did not answer the test</source>
+        <translation>هسته به آزمایش پاسخ نداد</translation>
+    </message>
 </context>
 <context>
     <name>ProfilesTableModel</name>
@@ -3701,6 +3825,44 @@ Error: %1</source>
     <message>
         <source>Weak Cipher</source>
         <translation>رمز ضعیف</translation>
+    </message>
+    <message>
+        <source>The routing profile sends traffic to %1, which holds an auto selector; such a chain can only be started, not used in routing rules</source>
+        <translation>نمایهٔ مسیریابی ترافیک را به %1 می‌فرستد که یک انتخابگر خودکار دارد؛ چنین زنجیره‌ای فقط قابل اجراست و نمی‌توان آن را در قوانین مسیریابی به کار برد</translation>
+    </message>
+    <message numerus="yes">
+        <source>[Auto selector] Left out %n profile(s) that cannot be reached through the hops in front of the selector (custom Xray configs, or too many switches between %1 and Xray).</source>
+        <translation>
+            <numerusform>[انتخابگر خودکار] %n نمایه که از طریق هاپ‌های جلوی انتخابگر قابل دسترسی نیستند کنار گذاشته شد (پیکربندی‌های سفارشی Xray، یا جابه‌جایی بیش از حد بین %1 و Xray).</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>A chain can hold only one auto selector</source>
+        <translation>یک زنجیره فقط می‌تواند یک انتخابگر خودکار داشته باشد</translation>
+    </message>
+    <message>
+        <source>Extra Core profiles and custom configs cannot share a chain with an auto selector</source>
+        <translation>نمایه‌های هسته اضافی و پیکربندی‌های سفارشی نمی‌توانند با انتخابگر خودکار در یک زنجیره باشند</translation>
+    </message>
+    <message>
+        <source>Chains with an auto selector cannot be scanned</source>
+        <translation>زنجیره‌های دارای انتخابگر خودکار قابل اسکن نیستند</translation>
+    </message>
+    <message>
+        <source>The group&apos;s front or landing proxy no longer exists</source>
+        <translation>پروکسی جلویی یا خروجی گروه دیگر وجود ندارد</translation>
+    </message>
+    <message>
+        <source>Chains with an auto selector cannot be tested hop by hop; test its members instead</source>
+        <translation>زنجیره‌های دارای انتخابگر خودکار را نمی‌توان هاپ به هاپ آزمایش کرد؛ به‌جای آن اعضای آن را آزمایش کنید</translation>
+    </message>
+    <message>
+        <source>The group&apos;s front or landing proxy is not valid; the log has the details</source>
+        <translation>پروکسی جلویی یا خروجی گروه معتبر نیست؛ جزئیات در گزارش آمده است</translation>
+    </message>
+    <message>
+        <source>Auto selector paused — no network connection, or the chain hops in front of it are down (%1 profiles held)</source>
+        <translation>انتخابگر خودکار متوقف شد — اتصال شبکه وجود ندارد، یا هاپ‌های زنجیره در جلوی آن از کار افتاده‌اند (%1 نمایه نگه داشته شد)</translation>
     </message>
 </context>
 <context>
@@ -4297,6 +4459,10 @@ Error: %1</source>
     <message>
         <source>Must be a number.</source>
         <translation>باید عدد باشد.</translation>
+    </message>
+    <message>
+        <source>Routing rules cannot use the chain &quot;%1&quot;: it holds an auto selector, so it can only be started. Pick another outbound.</source>
+        <translation>قوانین مسیریابی نمی‌توانند از زنجیرهٔ «%1» استفاده کنند: این زنجیره یک انتخابگر خودکار دارد، پس فقط قابل اجراست. خروجی دیگری انتخاب کنید.</translation>
     </message>
 </context>
 <context>

@@ -6025,6 +6025,122 @@ Leave some out: ^(?!.*(germany|🇩🇪)).*$ uses every name that contains neith
         <source>Add at least one profile to the chain.</source>
         <translation>Добавьте в цепочку хотя бы один профиль.</translation>
     </message>
+    <message>
+        <source>Tests each hop on its own and through every hop above it, without saving the chain</source>
+        <translation>Проверяет каждое звено отдельно и через все звенья выше него, не сохраняя цепочку</translation>
+    </message>
+    <message>
+        <source>Test Hops</source>
+        <translation>Проверить звенья</translation>
+    </message>
+    <message>
+        <source>A chain can hold only one auto selector.</source>
+        <translation>В цепочке может быть только один автовыбор.</translation>
+    </message>
+    <message>
+        <source>An auto selector cannot share a chain with an Extra Core profile or a custom config.</source>
+        <translation>Автовыбор не может находиться в одной цепочке с профилем с доп. ядром или пользовательской конфигурацией.</translation>
+    </message>
+    <message>
+        <source>Connect OK</source>
+        <translation>Подключено</translation>
+    </message>
+    <message>
+        <source>%1 ms</source>
+        <translation>%1 мс</translation>
+    </message>
+    <message>
+        <source>On its own: %1</source>
+        <translation>Отдельно: %1</translation>
+    </message>
+    <message>
+        <source>On its own: unavailable</source>
+        <translation>Отдельно: недоступен</translation>
+    </message>
+    <message>
+        <source>Invalid</source>
+        <translation>Недействителен</translation>
+    </message>
+    <message>
+        <source>This profile is not valid; the log has the details.</source>
+        <translation>Этот профиль недействителен; подробности в журнале.</translation>
+    </message>
+    <message>
+        <source>Works.</source>
+        <translation>Работает.</translation>
+    </message>
+    <message>
+        <source>Works through every hop above it.</source>
+        <translation>Работает через все звенья выше.</translation>
+    </message>
+    <message>
+        <source>Not reached</source>
+        <translation>Не достигнуто</translation>
+    </message>
+    <message>
+        <source>A hop above already fails, so this says nothing about this hop.</source>
+        <translation>Звено выше уже не работает, поэтому об этом звене ничего сказать нельзя.</translation>
+    </message>
+    <message>
+        <source>Fails through the hops above</source>
+        <translation>Не работает через звенья выше</translation>
+    </message>
+    <message>
+        <source>Works on its own (%1), but not through the hops above it: the hop above may not reach this server, or may not carry its protocol (UDP, for example).</source>
+        <translation>Работает отдельно (%1), но не через звенья выше: звено выше может не достигать этого сервера или не пропускать его протокол (например, UDP).</translation>
+    </message>
+    <message>
+        <source>Unavailable</source>
+        <translation>Недоступен</translation>
+    </message>
+    <message>
+        <source>Tested on its own only: a hop above is not valid.</source>
+        <translation>Проверено только отдельно: одно из звеньев выше недействительно.</translation>
+    </message>
+    <message>
+        <source>Not tested</source>
+        <translation>Не проверено</translation>
+    </message>
+    <message>
+        <source>The test was stopped.</source>
+        <translation>Проверка остановлена.</translation>
+    </message>
+    <message>
+        <source>The chain breaks at hop %1, %2.</source>
+        <translation>Цепочка обрывается на звене %1, %2.</translation>
+    </message>
+    <message>
+        <source>Every hop works, and so does the group&apos;s landing proxy after them (%1).</source>
+        <translation>Все звенья работают, как и выходной прокси группы после них (%1).</translation>
+    </message>
+    <message>
+        <source>Every hop works, but the group&apos;s landing proxy fails through them.</source>
+        <translation>Все звенья работают, но выходной прокси группы через них не работает.</translation>
+    </message>
+    <message>
+        <source>Every hop works, but the group&apos;s landing proxy is unavailable.</source>
+        <translation>Все звенья работают, но выходной прокси группы недоступен.</translation>
+    </message>
+    <message>
+        <source>Every hop works through the ones above it.</source>
+        <translation>Каждое звено работает через звенья выше.</translation>
+    </message>
+    <message>
+        <source>Testing…</source>
+        <translation>Проверка…</translation>
+    </message>
+    <message>
+        <source>Testing each hop on its own and through the hops above it…</source>
+        <translation>Проверка каждого звена отдельно и через звенья выше…</translation>
+    </message>
+    <message>
+        <source>The hops changed during the test; test again.</source>
+        <translation>Звенья изменились во время проверки; проверьте ещё раз.</translation>
+    </message>
+    <message>
+        <source>Another test is running; try again when it finishes.</source>
+        <translation>Выполняется другая проверка; повторите, когда она завершится.</translation>
+    </message>
 </context>
 <context>
     <name>EditCustom</name>
@@ -10476,6 +10592,14 @@ Name: %1</source>
         <source>The group &quot;%1&quot; uses its own routing profile, so the running profile keeps it.</source>
         <translation>Группа «%1» использует собственный профиль маршрутизации, поэтому запущенный профиль сохраняет его.</translation>
     </message>
+    <message>
+        <source>[Auto selector] Every running profile stopped working through the hops in front of it — rebuilding with the next candidates.</source>
+        <translation>[Автовыбор] Все запущенные профили перестали работать через звенья перед ним — пересборка со следующими кандидатами.</translation>
+    </message>
+    <message>
+        <source>The core did not answer the test</source>
+        <translation>Ядро не ответило на проверку</translation>
+    </message>
 </context>
 <context>
     <name>OtpItem</name>
@@ -11078,10 +11202,6 @@ To fix this, share the hotspot from the throne-tun adapter instead of &quot;%1&q
     <message>
         <source>[Warn] Throne did not shut down cleanly last time. Diagnostics were saved to: %1</source>
         <translation>[Предупреждение] В прошлый раз Throne не завершил работу корректно. Результаты диагностики сохранены в: %1</translation>
-    </message>
-    <message>
-        <source>An auto selector cannot be a hop in a chain: it moves to a different server on its own whenever one degrades.</source>
-        <translation>Автовыбор не может быть звеном цепочки: он сам переключается на другой сервер, когда текущий начинает работать хуже.</translation>
     </message>
     <message>
         <source>a profile that no longer exists</source>
@@ -11994,6 +12114,46 @@ To fix this, share the hotspot from the throne-tun adapter instead of &quot;%1&q
     <message>
         <source>Plaintext Replies</source>
         <translation>Ответы без шифрования</translation>
+    </message>
+    <message>
+        <source>The routing profile sends traffic to %1, which holds an auto selector; such a chain can only be started, not used in routing rules</source>
+        <translation>Профиль маршрутизации направляет трафик в %1, где есть автовыбор; такую цепочку можно только запустить, но не использовать в правилах маршрутизации</translation>
+    </message>
+    <message numerus="yes">
+        <source>[Auto selector] Left out %n profile(s) that cannot be reached through the hops in front of the selector (custom Xray configs, or too many switches between %1 and Xray).</source>
+        <translation>
+            <numerusform>[Автовыбор] Исключён %n профиль, недоступный через звенья перед автовыбором (пользовательские конфигурации Xray или слишком много переключений между %1 и Xray).</numerusform>
+            <numerusform>[Автовыбор] Исключено %n профиля, недоступных через звенья перед автовыбором (пользовательские конфигурации Xray или слишком много переключений между %1 и Xray).</numerusform>
+            <numerusform>[Автовыбор] Исключено %n профилей, недоступных через звенья перед автовыбором (пользовательские конфигурации Xray или слишком много переключений между %1 и Xray).</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>A chain can hold only one auto selector</source>
+        <translation>В цепочке может быть только один автовыбор</translation>
+    </message>
+    <message>
+        <source>Extra Core profiles and custom configs cannot share a chain with an auto selector</source>
+        <translation>Профили с доп. ядром и пользовательские конфигурации не могут находиться в одной цепочке с автовыбором</translation>
+    </message>
+    <message>
+        <source>Chains with an auto selector cannot be scanned</source>
+        <translation>Цепочки с автовыбором нельзя сканировать</translation>
+    </message>
+    <message>
+        <source>The group&apos;s front or landing proxy no longer exists</source>
+        <translation>Фронт-прокси или выходной прокси группы больше не существует</translation>
+    </message>
+    <message>
+        <source>Chains with an auto selector cannot be tested hop by hop; test its members instead</source>
+        <translation>Цепочки с автовыбором нельзя проверить по звеньям; проверьте вместо этого его участников</translation>
+    </message>
+    <message>
+        <source>The group&apos;s front or landing proxy is not valid; the log has the details</source>
+        <translation>Фронт-прокси или выходной прокси группы недействителен; подробности в журнале</translation>
+    </message>
+    <message>
+        <source>Auto selector paused — no network connection, or the chain hops in front of it are down (%1 profiles held)</source>
+        <translation>Автовыбор приостановлен — нет подключения к сети или звенья цепочки перед ним не работают (профилей удерживается: %1)</translation>
     </message>
 </context>
 <context>
@@ -15647,6 +15807,10 @@ Remove that endpoint from this routing profile as well?</source>
     <message>
         <source>Must be a number.</source>
         <translation>Должно быть числом.</translation>
+    </message>
+    <message>
+        <source>Routing rules cannot use the chain &quot;%1&quot;: it holds an auto selector, so it can only be started. Pick another outbound.</source>
+        <translation>В правилах маршрутизации нельзя использовать цепочку &quot;%1&quot;: в ней есть автовыбор, поэтому ее можно только запустить. Выберите другой outbound.</translation>
     </message>
 </context>
 </TS>
