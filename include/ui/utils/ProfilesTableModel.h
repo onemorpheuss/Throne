@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "include/database/entities/GroupSort.h"
+#include "include/ui/utils/RecentIdOrder.h"
 
 namespace Configs {
     class Profile;
@@ -83,10 +84,11 @@ private:
     QList<int> m_profileIds;
     mutable QHash<int, int> id2row;
     mutable QHash<int, std::shared_ptr<Configs::Profile>> m_cache;
-    mutable QList<int> m_lruOrder;
+    mutable RecentIdOrder m_lruOrder;
     int m_cacheSize = 100;
     // Resolving an endpoint source can query the IP lists, so it runs once per row, not per paint.
     mutable QHash<int, QString> m_addressCache;
+    mutable QHash<int, QString> m_typeCache;
 
     mutable QHash<int, FilterKey> m_filterKeys;
     mutable bool m_filterIndexBuilt = false;

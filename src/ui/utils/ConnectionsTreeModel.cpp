@@ -222,8 +222,16 @@ QVariant ConnectionsTreeModel::headerData(int section, Qt::Orientation orientati
     return {};
 }
 
-void ConnectionsTreeModel::setConnections(const QList<Stats::ConnectionMetadata> &connections,
+bool ConnectionsTreeModel::setConnections(const QList<Stats::ConnectionMetadata> &connections,
                                           Stats::ConnectionSort sort, bool ascending) {
+    if (m_hasSnapshot && m_snapshotSort == sort && m_snapshotAscending == ascending && m_snapshot == connections) {
+        return false;
+    }
+    m_hasSnapshot = true;
+    m_snapshot = connections;
+    m_snapshotSort = sort;
+    m_snapshotAscending = ascending;
+
     Groups groups;
     QHash<QString, ProcessGroupItem *> groupByName;
     QHash<QString, ConnectionLeafItem *> leafByKey;
@@ -333,6 +341,7 @@ void ConnectionsTreeModel::setConnections(const QList<Stats::ConnectionMetadata>
     m_groups.swap(groups);
     changePersistentIndexList(from, to);
     emit layoutChanged();
+    return true;
 }
 
 bool ConnectionsTreeModel::isProcessIndex(const QModelIndex &index) const {

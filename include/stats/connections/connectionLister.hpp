@@ -56,6 +56,8 @@ namespace Stats
         long long closedAtMs = 0; // 0 while live
         long long uploadSpeed = 0;   // bytes/sec
         long long downloadSpeed = 0;
+
+        bool operator==(const ConnectionMetadata &) const = default;
     };
 
     class ConnectionLister

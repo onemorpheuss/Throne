@@ -516,6 +516,30 @@ jobs:
         run: bash ./script/ci/headless_smoke.sh a
       - name: Smoke test as a systemd notify service
         run: bash ./script/ci/headless_smoke.sh b
+  # Offline model/traffic regressions use only synthetic data and loopback-free stubs.
+  offline-tests:
+    name: Offline Qt regressions
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - name: Checking out sources
+        uses: actions/checkout@v7.0.1
+      - name: Installing Qt and build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends qt6-base-dev cmake ninja-build
+      - name: Building and running model/cache regressions
+        run: |
+          cmake -S tests/ui -B build-ui-tests -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-ui-tests --parallel 4
+          ctest --test-dir build-ui-tests --output-on-failure
+      - name: Building and running traffic regressions
+        run: |
+          cmake -S tests/offline/traffic -B build-traffic-tests -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-traffic-tests --parallel 4
+          ctest --test-dir build-traffic-tests --output-on-failure
   pack:
     name: Pack ${{ matrix.target }}
     runs-on: ${{ matrix.runner }}
@@ -1277,6 +1301,8 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - pack
+      - headless-smoke
+      - offline-tests
     permissions:
       contents: write
       actions: read

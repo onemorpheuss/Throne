@@ -914,3 +914,10 @@ target_link_libraries(Throne PRIVATE
 )
 
 qt_finalize_executable(Throne)
+
+option(THRONE_BUILD_UI_TESTS "Build offline Qt model and traffic regression tests" OFF)
+if (THRONE_BUILD_UI_TESTS)
+    enable_testing()
+    add_subdirectory(tests/ui)
+    add_subdirectory(tests/offline/traffic)
+endif ()

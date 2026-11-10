@@ -424,7 +424,7 @@ void MainWindow::closeConnections(const QStringList& ids)
 void MainWindow::UpdateConnectionList(const QList<Stats::ConnectionMetadata>& connections)
 {
     if (connectionsModel == nullptr) return;
-    connectionsModel->setConnections(connections, Stats::connection_lister->getSort(), Stats::connection_lister->isSortAscending());
+    if (!connectionsModel->setConnections(connections, Stats::connection_lister->getSort(), Stats::connection_lister->isSortAscending())) return;
     syncConnectionExpansion();
     ui->connections->doItemsLayout();
     for (const int column : {ConnectionsTreeModel::ColTraffic, ConnectionsTreeModel::ColSpeed})

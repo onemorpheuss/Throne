@@ -57,12 +57,7 @@ QMimeData* ProfilesTableModel::mimeData(const QModelIndexList &indexes) const {
 
 void ProfilesTableModel::ensureCached(int profileId) const {
     if (m_cache.contains(profileId)) {
-        for (int i = 0; i < m_lruOrder.size(); ++i) {
-            if (m_lruOrder[i] == profileId) {
-                m_lruOrder.move(i, m_lruOrder.size() - 1);
-                break;
-            }
-        }
+        m_lruOrder.touch(profileId);
         return;
     }
 
@@ -81,6 +76,7 @@ void ProfilesTableModel::evictOne() const {
     int id = m_lruOrder.takeFirst();
     m_cache.remove(id);
     m_addressCache.remove(id);
+    m_typeCache.remove(id);
 }
 
 QVariant ProfilesTableModel::data(const QModelIndex &index, int role) const {
@@ -98,22 +94,18 @@ QVariant ProfilesTableModel::data(const QModelIndex &index, int role) const {
     const std::shared_ptr<Configs::Profile> &profile = it.value();
     if (!profile) return {};
 
-    const int startedId = Configs::dataManager->settingsRepo->started_id;
-    const bool isRunning = (profile->id == startedId);
-    const ThemeTokens &tokens = themeManager()->tokens;
-    QColor linkColor = !isRunning                  ? QColor()
-                       : tokens.runningRow.isValid() ? tokens.onRunningRow
-                                                     : QApplication::palette().link().color();
-
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
         case ColType: {
             if (!profile->outbound) return QString();
+            auto cached = m_typeCache.constFind(profileId);
+            if (cached != m_typeCache.constEnd()) return cached.value();
             auto type = profile->outbound->DisplayType();
             if (Configs::dataManager->settingsRepo->show_config_security) {
                 auto sec = profile->outbound->DisplaySecurity();
                 if (!sec.isEmpty()) type += QStringLiteral(" (%1)").arg(sec);
             }
+            m_typeCache.insert(profileId, type);
             return type;
         }
         case ColAddress: {
@@ -135,6 +127,13 @@ QVariant ProfilesTableModel::data(const QModelIndex &index, int role) const {
         }
         return {};
     }
+    if (role != Qt::ForegroundRole && role != Qt::BackgroundRole) return {};
+    const bool isRunning = profile->id == Configs::dataManager->settingsRepo->started_id;
+    const ThemeTokens &tokens = themeManager()->tokens;
+    const QColor linkColor = !isRunning ? QColor()
+                             : tokens.runningRow.isValid() ? tokens.onRunningRow
+                                                           : QApplication::palette().link().color();
+
     if (role == Qt::ForegroundRole) {
         if (index.column() == ColTestResult) {
             QColor latencyColor = profile->DisplayLatencyColor();
@@ -175,6 +174,7 @@ void ProfilesTableModel::setProfileIds(const QList<int> &ids) {
     m_cache.clear();
     m_lruOrder.clear();
     m_addressCache.clear();
+    m_typeCache.clear();
     m_filterKeys.clear();
     m_filterIndexBuilt = false;
     endResetModel();
@@ -224,6 +224,7 @@ void ProfilesTableModel::refreshTable(const QList<int> &ids, bool mayNeedReset) 
         setProfileIds(ids);
     } else {
         m_addressCache.clear();
+        m_typeCache.clear();
         m_filterKeys.clear();
         m_filterIndexBuilt = false;
 
@@ -237,6 +238,7 @@ void ProfilesTableModel::refreshTable(const QList<int> &ids, bool mayNeedReset) 
 void ProfilesTableModel::refreshProfileId(int profileId) {
     if (!id2row.contains(profileId)) return;
     m_addressCache.remove(profileId);
+    m_typeCache.remove(profileId);
     // Keep the filter key in step before dataChanged makes the proxy re-test the row.
     if (m_filterIndexBuilt) {
         if (auto profile = Configs::dataManager->profilesRepo->GetProfile(profileId)) {
@@ -261,6 +263,7 @@ void ProfilesTableModel::refreshTrafficIds(const QList<int> &profileIds) {
 
 void ProfilesTableModel::invalidateAddresses() {
     m_addressCache.clear();
+    m_typeCache.clear();
     m_filterKeys.clear();
     m_filterIndexBuilt = false;
     if (m_profileIds.isEmpty()) return;

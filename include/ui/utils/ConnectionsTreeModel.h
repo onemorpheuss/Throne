@@ -88,7 +88,7 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
-    void setConnections(const QList<Stats::ConnectionMetadata> &connections, Stats::ConnectionSort sort, bool ascending);
+    bool setConnections(const QList<Stats::ConnectionMetadata> &connections, Stats::ConnectionSort sort, bool ascending);
 
     static QString displayProcessName(const QString &processName);
     // The menu's "Matched: <entries> → <proxy|direct|server>": the rule's entries that matched, else the whole rule,
@@ -107,4 +107,8 @@ private:
     QModelIndex indexOf(ConnectionsTree::TreeItem *item, int column) const;
 
     std::vector<std::unique_ptr<ConnectionsTree::ProcessGroupItem>> m_groups;
+    QList<Stats::ConnectionMetadata> m_snapshot;
+    Stats::ConnectionSort m_snapshotSort = Stats::Default;
+    bool m_snapshotAscending = false;
+    bool m_hasSnapshot = false;
 };

@@ -90,12 +90,16 @@ void MainWindow::show_group(int gid) {
     }
 
     if (Configs::dataManager->settingsRepo->current_group != gid) {
-        flushPendingGroupSave();
         saveProfileFocusState();
-        if (auto lastGroup = Configs::dataManager->groupsRepo->CurrentGroup()) {
-            lastGroup->scroll_last_profile = ui->profilesTableView->firstVisibleRow();
-            Configs::dataManager->groupsRepo->Save(lastGroup);
+        auto lastGroup = Configs::dataManager->groupsRepo->CurrentGroup();
+        bool scrollChanged = false;
+        if (lastGroup) {
+            const int firstVisible = ui->profilesTableView->firstVisibleRow();
+            scrollChanged = lastGroup->scroll_last_profile != firstVisible;
+            lastGroup->scroll_last_profile = firstVisible;
         }
+        if (m_groupSavePending) flushPendingGroupSave();
+        else if (scrollChanged) Configs::dataManager->groupsRepo->Save(lastGroup);
         Configs::dataManager->settingsRepo->current_group = gid;
         Configs::dataManager->settingsRepo->Save();
     }

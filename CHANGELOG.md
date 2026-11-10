@@ -1,3 +1,10 @@
+#### 1.4.4
+
+* Skip connection-tree relayouts when the snapshot and sort are unchanged
+* Cache profile type labels and make the profile cache LRU lookup constant-time
+* Avoid redundant group saves when switching profiles
+* Add offline large-import benchmarks and Qt model/cache/traffic regression tests
+
 #### 1.4.3
 
 * Stop subscription dry-run probes after finding the required profile instead of reparsing every document
